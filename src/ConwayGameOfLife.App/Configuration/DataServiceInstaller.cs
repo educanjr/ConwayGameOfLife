@@ -18,6 +18,13 @@ public class DataServiceInstaller : IServiceInstaller
         var dbSettings = new DbSettings(configuration.GetConnectionString("ConwayDatabase"));
         services.AddSingleton<IDbSettings, DbSettings>((services) => dbSettings);
 
-        services.AddDbContext<IConwayDbContext, ConwayDbContext>(opt => opt.UseNpgsql(dbSettings.ConnectionString));
+        services.AddDbContext<IConwayDbContext, ConwayDbContext>(opt => opt.UseNpgsql(dbSettings.ConnectionString, sqlOpt =>
+        {
+            sqlOpt.EnableRetryOnFailure(
+                maxRetryCount: 5,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorCodesToAdd: null
+            );
+        }));
     }
 }

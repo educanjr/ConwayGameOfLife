@@ -21,21 +21,4 @@ public class ConwayDbContext : DbContext, IConwayDbContext
         modelBuilder.ApplyConfiguration(new BoardConfiguration());
         modelBuilder.ApplyConfiguration(new BoardExecutionConfiguration());
     }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        if (!optionsBuilder.IsConfigured)
-        {
-            optionsBuilder.UseNpgsql(_dbSettings.ConnectionString, sqlOpt =>
-            {
-                sqlOpt.EnableRetryOnFailure(
-                    maxRetryCount: 5,
-                    maxRetryDelay: TimeSpan.FromSeconds(10),
-                    errorCodesToAdd: null
-                );
-            });
-        }
-
-        base.OnConfiguring(optionsBuilder);
-    }
 }
