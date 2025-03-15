@@ -2,6 +2,12 @@ using ConwayGameOfLife.App.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Detect if running in a container
+var isDocker = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER") == "true";
+
+// Force HTTP only when running in Container
+var urls = isDocker ? "http://+:80" : "https://+:443;http://+:80";
+builder.WebHost.UseUrls(urls);
 
 // Add services to the container.
 builder.Services.InstallServices(builder.Configuration, typeof(IServiceInstaller).Assembly);
@@ -15,9 +21,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
+if (!isDocker)
+{
+    app.UseHttpsRedirection();
+}
 
 app.MapControllers();
 

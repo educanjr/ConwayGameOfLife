@@ -1,0 +1,43 @@
+version: '3.8'
+
+networks:
+  conwaygame.devnetwork:
+    driver: bridge
+
+services:
+  conwaygame.api:
+    depends_on:
+      - "conwaygame.db"
+    container_name: conwaygame_api
+    build:
+      context: ./src
+      dockerfile: ConwayGameOfLife.App/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:80
+      - ConnectionStrings__ConwayDatabase=User ID=postgres;Password=postgres;Server=app_db;Port=5432;Database=ConwayGameDb;IntegratedSecurity=true;Pooling=true;
+    ports:
+      - "7006:80"
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+    networks:
+      - conwaygame.devnetwork
+
+  conwaygame.db:
+    image: postgres:latest
+    container_name: conwaygame_db
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=ConwayGameDb
+    ports: 
+      - "5433:5432"
+    restart: always
+    volumes: 
+      - app_data:/var/lib/postgresql/data
+    networks:
+      - conwaygame.devnetwork
+
+volumes:
+  app_data:  

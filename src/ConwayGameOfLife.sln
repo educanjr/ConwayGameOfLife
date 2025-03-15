@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.13.35828.75
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.App", "ConwayGameOfLife\ConwayGameOfLife.App.csproj", "{FF931E32-DA44-492B-AE92-75825E1397D2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.App", "ConwayGameOfLife.App\ConwayGameOfLife.App.csproj", "{FF931E32-DA44-492B-AE92-75825E1397D2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.Web", "ConwayGameOfLife.Web\ConwayGameOfLife.Web.csproj", "{B6627C84-B048-410B-9AD4-13EF29579F0E}"
 EndProject

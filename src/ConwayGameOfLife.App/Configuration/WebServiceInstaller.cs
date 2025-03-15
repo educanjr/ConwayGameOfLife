@@ -16,7 +16,7 @@ public class WebServiceInstaller : IServiceInstaller
             {
                 opt.ReportApiVersions = true;
                 opt.AssumeDefaultVersionWhenUnspecified = true;
-                opt.DefaultApiVersion = new Asp.Versioning.ApiVersion(1);
+                opt.DefaultApiVersion = new ApiVersion(1);
                 opt.ApiVersionReader = new UrlSegmentApiVersionReader();
             })
             .AddApiExplorer(opt =>
