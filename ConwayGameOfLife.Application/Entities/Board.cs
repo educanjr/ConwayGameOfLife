@@ -5,4 +5,6 @@ public class Board
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public BoardState InitialState { get; set; } = new BoardState();
+
+    public IList<BoardExecution> Executions { get; set; } = new List<BoardExecution>();
 }
