@@ -28,7 +28,7 @@ public abstract class BaseApiController<TController> : ControllerBase
         error.Code switch
         {
             ErrorCode.NotFound => NotFound(
-                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status400BadRequest)),
+                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status404NotFound)),
             ErrorCode.InternalError => StatusCode(
                 StatusCodes.Status500InternalServerError,
                 ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status500InternalServerError)),

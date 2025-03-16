@@ -3,7 +3,6 @@ using Asp.Versioning.ApiExplorer;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -23,7 +22,7 @@ public class WebServiceInstaller : IServiceInstaller
             })
             .AddApiExplorer(opt =>
             {
-                opt.GroupNameFormat = "'v'VVV"; // Formats versions as v1, v2, etc.
+                opt.GroupNameFormat = "'v'VVV"; //Formats versions as v1, v2, etc.
                 opt.SubstituteApiVersionInUrl = true;
             });
 
@@ -41,12 +40,10 @@ public class WebServiceInstaller : IServiceInstaller
             {
                 opt.SwaggerDoc(description.GroupName, new OpenApiInfo
                 {
-                    Title = $"Conway Game Of Life API {description.ApiVersion}",
+                    Title = $"Conway's Game Of Life API {description.ApiVersion}",
                     Version = description.ApiVersion.ToString()
                 });
             }
-
-            opt.OperationFilter<SwaggerDefaultValues>(); // Adds versioning info in Swagger UI
         });
 
         services.AddCors(options =>
@@ -82,23 +79,5 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
                 Version = description.ApiVersion.ToString()
             });
         }
-    }
-}
-
-//Ensures API versioning appears in Swagger UI
-public class SwaggerDefaultValues : Swashbuckle.AspNetCore.SwaggerGen.IOperationFilter
-{
-    public void Apply(OpenApiOperation operation, OperationFilterContext context)
-    {
-        var apiVersion = context.ApiDescription.GroupName;
-        operation.Parameters ??= new List<OpenApiParameter>();
-
-        operation.Parameters.Add(new OpenApiParameter
-        {
-            Name = "api-version",
-            In = ParameterLocation.Query,
-            Required = false,
-            Schema = new OpenApiSchema { Type = "string", Default = new OpenApiString(apiVersion) }
-        });
     }
 }

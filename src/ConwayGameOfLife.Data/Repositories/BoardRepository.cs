@@ -1,6 +1,7 @@
 ﻿using ConwayGameOfLife.Application.Entities;
 using ConwayGameOfLife.Application.Repositories;
 using ConwayGameOfLife.Data.Abstractions;
+using Microsoft.EntityFrameworkCore;
 
 namespace ConwayGameOfLife.Data.Repositories;
 
@@ -23,5 +24,22 @@ public class BoardRepository : BaseRepository, IBoardRepository
         await ConwayDbContext.SaveChangesAsync();
 
         return board;
+    }
+
+    public async ValueTask<Board?> GetBoardIncludingOnlyCurrentExecution(Guid id)
+    {
+        var board = await ConwayDbContext.Boards
+            .AsNoTracking()
+            .Where(x => x.Id == id)
+            .Select(x => new Board
+            {
+                Name = x.Name,
+                Id = x.Id,
+                InitialState = x.InitialState,
+                Executions = x.Executions.OrderByDescending(x => x.Step).Take(1).ToList()
+            })
+            .FirstOrDefaultAsync();
+
+        return board ?? default!;
     }
 }
