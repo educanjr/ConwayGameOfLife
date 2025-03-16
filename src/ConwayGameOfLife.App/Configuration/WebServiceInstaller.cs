@@ -1,5 +1,7 @@
 ﻿using Asp.Versioning;
 using Asp.Versioning.ApiExplorer;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -58,6 +60,9 @@ public class WebServiceInstaller : IServiceInstaller
                         .AllowAnyHeader();
                 });
         });
+
+        services.AddValidatorsFromAssembly(Web.AssemblyReference.Assembly);
+        services.AddFluentValidationAutoValidation();
     }
 }
 

@@ -1,4 +1,9 @@
+using ConwayGameOfLife.Application.CommandAndQueries.Board.Register;
+using ConwayGameOfLife.Application.Common;
+using ConwayGameOfLife.Application.Entities;
 using ConwayGameOfLife.Web.Abstractions;
+using ConwayGameOfLife.Web.Contracts;
+using ConwayGameOfLife.Web.Extensions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -21,16 +26,20 @@ public class GameController : BaseApiController<GameController>
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> CreateBoard()
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> CreateBoard([FromBody] CreateBoardRequest request)
     {
         try
         {
-            await NotImplementedEndpointPlaceholder();
-            return Created(GenerateHateoasUrl(nameof(GetBoardNextState), Guid.Empty), Guid.Empty);
+            return await ResultObject.Create(new RegisterBoardCommand(request.Name, BoardState.FromJaggedArray(request.State)))
+                .Bind(cmd => Sender.Send(cmd))
+                .Match(
+                    id => Created(GenerateHateoasUrl(nameof(GetBoardNextState), id), id),
+                    HandleFailure);
         }
         catch (Exception ex)
         {
-            return HandleFailure(ex);
+            return HandleError(ex);
         }
     }
 
@@ -38,6 +47,7 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(GetBoardNextState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBoardNextState(Guid id)
     {
         try
@@ -47,7 +57,7 @@ public class GameController : BaseApiController<GameController>
         }
         catch (Exception ex)
         {
-            return HandleFailure(ex);
+            return HandleError(ex);
         }
     }
 
@@ -55,6 +65,7 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(GetBoardNextStepsState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBoardNextStepsState(Guid id, uint steps)
     {
         try
@@ -64,7 +75,7 @@ public class GameController : BaseApiController<GameController>
         }
         catch (Exception ex)
         {
-            return HandleFailure(ex);
+            return HandleError(ex);
         }
     }
 
@@ -72,6 +83,7 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(GetBoardFinalState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBoardFinalState(Guid id)
     {
         try
@@ -81,7 +93,7 @@ public class GameController : BaseApiController<GameController>
         }
         catch (Exception ex)
         {
-            return HandleFailure(ex);
+            return HandleError(ex);
         }
     }
 }

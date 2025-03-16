@@ -7,8 +7,7 @@ public class ResultObject
         IsSuccess = false;
     }
 
-    private ResultObject(bool succeeded)
-        : this()
+    protected ResultObject(bool succeeded)
     {
         IsSuccess = succeeded;
     }
@@ -37,6 +36,12 @@ public class ResultObject
 
     public static ResultObject Success() => new(true);
 
+    public static ResultObject<TResult> Success<TResult>(TResult value) => new(value);
+
+    public static ResultObject Failure(ResultError error) => new(error);
+
+    public static ResultObject<TResult> Failure<TResult>(ResultError error) => new(error);
+
     public static ResultObject Error(params string[] errorMessages) => new(
         new ResultError
         {
@@ -44,10 +49,27 @@ public class ResultObject
             Message = string.Join(Environment.NewLine, errorMessages)
         });
 
+    public static ResultObject<TResult> Error<TResult>(params string[] errorMessages) => new(
+       new ResultError
+       {
+           Code = ErrorCode.InternalError,
+           Message = string.Join(Environment.NewLine, errorMessages)
+       });
+
     public static ResultObject NotFound(params string[] errorMessages) => new(
         new ResultError
         {
             Code = ErrorCode.NotFound,
             Message = string.Join(Environment.NewLine, errorMessages)
         });
+
+    public static ResultObject<TResult> NotFound<TResult>(params string[] errorMessages) => new(
+       new ResultError
+       {
+           Code = ErrorCode.NotFound,
+           Message = string.Join(Environment.NewLine, errorMessages)
+       });
+
+    public static ResultObject<TResult> Create<TResult>(TResult? value) =>
+        value is not null ? Success(value) : Error<TResult>("Cannot create a result object with NULL value.");
 }

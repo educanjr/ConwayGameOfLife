@@ -1,9 +1,11 @@
-﻿using ConwayGameOfLife.Web.Common;
+﻿using ConwayGameOfLife.Application.Common;
+using ConwayGameOfLife.Web.Common;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 
 namespace ConwayGameOfLife.Web.Abstractions;
 
@@ -22,14 +24,25 @@ public abstract class BaseApiController<TController> : ControllerBase
         _logger = logger;
     }
 
-    protected IActionResult HandleFailure(Exception error) =>
-        BadRequest(
-                ResponsesGenerationUtil.CreateProblemDetails(
-                    "Bad Request",
-                    Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest.ToString(),
-                    error.Message,
-                    Microsoft.AspNetCore.Http.StatusCodes.Status400BadRequest
-            ));
+    protected IActionResult HandleFailure(ResultError error) =>
+        error.Code switch
+        {
+            ErrorCode.NotFound => NotFound(
+                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status400BadRequest)),
+            ErrorCode.InternalError => StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status500InternalServerError)),
+            _ => throw new InvalidOperationException(),
+        };
+
+    protected IActionResult HandleError(Exception error) =>
+        StatusCode(
+            StatusCodes.Status500InternalServerError,
+            ResponsesGenerationUtil.CreateProblemDetails(
+                "Bad Request",
+                StatusCodes.Status400BadRequest.ToString(),
+                error.Message,
+                StatusCodes.Status400BadRequest));
 
     protected static Task NotImplementedEndpointPlaceholder() =>
         Task.FromException(new NotImplementedException());

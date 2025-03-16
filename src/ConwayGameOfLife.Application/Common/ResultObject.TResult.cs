@@ -2,45 +2,17 @@
 
 public class ResultObject<TResult> : ResultObject
 {
-    public ResultObject()
-    {
+    private readonly TResult? _value;
 
-    }
-    private ResultObject(TResult result)
-    {
-        Result = result;
-        IsSuccess = true;
-    }
+    protected internal ResultObject(TResult value)
+        : base(true) => _value = value;
 
-    private ResultObject(ResultError errorResult)
-        : base(errorResult)
-    {
-    }
+    protected internal ResultObject(ResultError error)
+        : base(error) => _value = default;
 
-    public TResult? Result { get; protected set; }
+    public TResult Value => IsSuccess
+        ? _value!
+        : throw new InvalidOperationException("The operation failed. The value cannot be accesed.");
 
-    public static new ResultObject<TResult> Error(params string[] errorMessages) => new ResultObject<TResult>(new ResultError
-    {
-        Code = ErrorCode.InternalError,
-        Message = string.Join(Environment.NewLine, errorMessages)
-    });
-
-    public static new ResultObject<TResult> NotFound(params string[] errorMessages) => new ResultObject<TResult>(new ResultError
-    {
-        Code = ErrorCode.NotFound,
-        Message = string.Join(Environment.NewLine, errorMessages)
-    });
-
-    public static ResultObject<TResult> Success(TResult result) => new(result);
-
-
-    public static implicit operator TResult?(ResultObject<TResult> result)
-    {
-        return result == null ? default : result.Result;
-    }
-
-    public static implicit operator ResultObject<TResult>(TResult result)
-    {
-        return new ResultObject<TResult>(result);
-    }
+    public static implicit operator ResultObject<TResult>(TResult value) => Create(value);
 }

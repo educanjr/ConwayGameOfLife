@@ -1,7 +1,7 @@
 ﻿using ConwayGameOfLife.Application.Entities;
+using ConwayGameOfLife.Data.Utils;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Newtonsoft.Json;
 
 namespace ConwayGameOfLife.Data.Configurations;
 
@@ -20,8 +20,8 @@ public class BoardConfiguration : IEntityTypeConfiguration<Board>
         builder
             .Property(x => x.InitialState)
             .HasConversion(
-                p => JsonConvert.SerializeObject(p),
-                p => JsonConvert.DeserializeObject<BoardState>(p) ?? default!);
+                p => DataConversionHelper.SerializeBoardState(p),
+                p => DataConversionHelper.DeserializeBoardState(p));
 
         //TODO: Set board initial seeding data with HasData
     }
