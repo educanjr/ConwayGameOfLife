@@ -14,5 +14,4 @@ internal static class DataConversionHelper
         return jaggedSatate is null ? default! :
             BoardState.FromJaggedArray(jaggedSatate);
     }
-        
 }

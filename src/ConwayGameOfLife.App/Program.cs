@@ -42,3 +42,7 @@ if (!isContainer)
 app.MapControllers();
 
 app.Run();
+
+public partial class Program
+{
+}
