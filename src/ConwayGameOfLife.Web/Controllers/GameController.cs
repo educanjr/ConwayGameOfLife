@@ -1,4 +1,5 @@
 using ConwayGameOfLife.Application.CommandAndQueries.Board.GetCurrent;
+using ConwayGameOfLife.Application.CommandAndQueries.Board.GetStep;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.Register;
 using ConwayGameOfLife.Application.Common;
 using ConwayGameOfLife.Application.Entities;
@@ -79,8 +80,12 @@ public class GameController : BaseApiController<GameController>
     {
         try
         {
-            await NotImplementedEndpointPlaceholder();
-            return Ok();
+            return await ResultObject
+                .Create(new GetBoardStepQuery(id, step))
+                .Bind(cmd => Sender.Send(cmd))
+                .Match(
+                    board => Ok(DataConverters.BoardStateConverter(board, step)),
+                    HandleFailure);
         }
         catch (Exception ex)
         {

@@ -3,4 +3,4 @@ using ConwayGameOfLife.Application.Dtos;
 
 namespace ConwayGameOfLife.Application.CommandAndQueries.Board.GetCurrent;
 
-public sealed record GetCurrentBoardQuery(Guid Id) : IQuery<CurrentBoardStateDto>;
+public sealed record GetCurrentBoardQuery(Guid Id) : IQuery<BoardStateDto>;

@@ -17,4 +17,14 @@ public class Board
 
         return Executions.OrderByDescending(e => e.Step).FirstOrDefault();
     }
+
+    public BoardExecution? GetExecution(uint executionStep)
+    {
+        if (Executions is null || Executions.Count == 0)
+        {
+            return null;
+        }
+
+        return Executions.FirstOrDefault(e => e.Step == executionStep);
+    }
 }

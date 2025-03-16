@@ -2,10 +2,10 @@
 
 namespace ConwayGameOfLife.Application.Dtos;
 
-public record CurrentBoardStateDto(
+public record BoardStateDto(
     Guid Id,
     string Name,
     BoardState InitialState,
     int CurrentStep,
     bool IsCompleted,
-    BoardState CurrentState);
+    BoardState State);

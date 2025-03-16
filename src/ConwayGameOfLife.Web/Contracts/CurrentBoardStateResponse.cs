@@ -6,4 +6,4 @@ public record CurrentBoardStateResponse(
     bool[][] InitialState,
     int CurrentStep,
     bool IsCompleted,
-    bool[][] CurrentState);
+    bool[][] State);
