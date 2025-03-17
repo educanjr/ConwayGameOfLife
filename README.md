@@ -147,7 +147,7 @@ PATCH /api/v1/Game/{Blinker_Id}/next
 ```
 
 ### **3️⃣ Calculate Multiple Steps Ahead**
-Computes **a given number of steps** in advance.
+Computes **a given number of steps** in advance from current state. Applies **evolutions** until board reach to the **final stable state** or the **last possible state**, based on the maximun ammount of executions allowed.
 
 **Request:**
 ```http
