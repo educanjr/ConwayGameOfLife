@@ -3,4 +3,4 @@ using ConwayGameOfLife.Application.Dtos;
 
 namespace ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateFinalStep;
 
-public sealed record CalculateFinalStepCommand(Guid Id) : ICommand<BoardStateDto>;
+public sealed record CalculateFinalStepCommand(Guid Id) : ICommand<CalculateExecutionsDto>;

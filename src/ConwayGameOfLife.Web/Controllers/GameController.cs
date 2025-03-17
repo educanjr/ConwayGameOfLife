@@ -1,4 +1,5 @@
 using ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateFinalStep;
+using ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateNextNSteps;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateNextStep;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.GetCurrent;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.GetStep;
@@ -99,6 +100,7 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(CalculateBoardNextState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> CalculateBoardNextState(Guid id)
     {
@@ -121,13 +123,29 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(CalculateBoardNextStepsState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> CalculateBoardNextStepsState(Guid id, uint steps)
+    public async Task<IActionResult> CalculateBoardNextStepsState(Guid id, int steps)
     {
+        if (steps <= 0)
+        {
+            return BadRequest(new
+            {
+                errors = new
+                {
+                    Steps = new[] { "The number of steps must be greater than 0." }
+                }
+            });
+        }
+
         try
         {
-            await NotImplementedEndpointPlaceholder();
-            return Ok();
+            return await ResultObject
+                .Create(new CalculateNextNStepsCommand(id, steps))
+                .Bind(cmd => Sender.Send(cmd))
+                .Match(
+                    board => Ok(DataConverters.CalculatedBoardStateConverter(board)),
+                    HandleFailure);
         }
         catch (Exception ex)
         {
@@ -139,6 +157,7 @@ public class GameController : BaseApiController<GameController>
     [EndpointName(nameof(GetBoardFinalState))]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetBoardFinalState(Guid id)
     {
@@ -148,7 +167,7 @@ public class GameController : BaseApiController<GameController>
                 .Create(new CalculateFinalStepCommand(id))
                 .Bind(cmd => Sender.Send(cmd))
                 .Match(
-                    board => Ok(DataConverters.CurrentBoardStateConverter(board)),
+                    board => Ok(DataConverters.CalculatedBoardStateConverter(board)),
                     HandleFailure);
         }
         catch (Exception ex)

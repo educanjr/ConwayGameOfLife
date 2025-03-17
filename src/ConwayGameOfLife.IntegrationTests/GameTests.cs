@@ -588,7 +588,7 @@ public class GameTests : BaseIntegrationTest
             new bool[] { true, true, true },
             new bool[] { false, false, false }
         };
-        var parsedResponse = await ParseResponse<CurrentBoardStateResponse>(response);
+        var parsedResponse = await ParseResponse<CalculatedBoardStateResponse>(response);
 
         Assert.NotEqual(Guid.Empty, parsedResponse.Id);
         Assert.Equal(board.Id, parsedResponse.Id);
@@ -596,6 +596,85 @@ public class GameTests : BaseIntegrationTest
         Assert.Equal(state, parsedResponse.InitialState);
         Assert.Equal(finalExpectedState, parsedResponse.State);
         Assert.Equal(2, parsedResponse.CurrentStep);
+        Assert.True(parsedResponse.IsCompleted);
+        Assert.Equal(2, parsedResponse.CalculatedSteps);
+
+        var loadBoard = await DbContext.Boards
+            .AsNoTracking()
+            .Where(x => x.Id == board.Id)
+            .Include(x => x.Executions)
+            .FirstOrDefaultAsync();
+        Assert.NotNull(loadBoard);
+        Assert.NotNull(loadBoard.Executions);
+        Assert.NotEmpty(loadBoard.Executions);
+        Assert.Equal(2, loadBoard.Executions.Count);
+        Assert.Equal(1, loadBoard.Executions.Count(x => x.IsFinal));
+    }
+
+    [Fact]
+    public async Task CalculateBoardNextStepsState_OnInvalidId_ShouldReturn404()
+    {
+        var state = new bool[][]
+        {
+            new bool[] { true, false, true },
+            new bool[] { true, true, true },
+            new bool[] { false, false, true },
+        };
+        var board = new Board
+        {
+            Name = "Test Next Board Step",
+            InitialState = BoardState.FromJaggedArray(state)
+        };
+
+        await DbContext.Boards.AddAsync(board);
+        Assert.NotEqual(Guid.Empty, board.Id);
+
+        await DbContext.SaveChangesAsync();
+
+        var response = await PatchAsync($"api/v1/Game/{Guid.NewGuid()}/next/2");
+
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task CalculateBoardNextStepsState_OnBlinkerSchema_OnValidId_WhenMoreStepsThanAllowedProvided_ShouldReturn200()
+    {
+        var state = new bool[][]
+        {
+            new bool[] { false, false, false },
+            new bool[] { true, true, true },
+            new bool[] { false, false, false }
+        };
+        var board = new Board
+        {
+            Name = "Test Next Board Step Blinker Schema",
+            InitialState = BoardState.FromJaggedArray(state)
+        };
+
+        await DbContext.Boards.AddAsync(board);
+        Assert.NotEqual(Guid.Empty, board.Id);
+
+        await DbContext.SaveChangesAsync();
+
+        var response = await PatchAsync($"api/v1/Game/{board.Id}/next/10");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var finalExpectedState = new bool[][]
+        {
+            new bool[] { false, false, false },
+            new bool[] { true, true, true },
+            new bool[] { false, false, false }
+        };
+        var parsedResponse = await ParseResponse<CalculatedBoardStateResponse>(response);
+
+        Assert.NotEqual(Guid.Empty, parsedResponse.Id);
+        Assert.Equal(board.Id, parsedResponse.Id);
+        Assert.Equal(board.Name, parsedResponse.Name);
+        Assert.Equal(state, parsedResponse.InitialState);
+        Assert.Equal(finalExpectedState, parsedResponse.State);
+        Assert.Equal(2, parsedResponse.CurrentStep);
+        Assert.Equal(2, parsedResponse.CalculatedSteps);
         Assert.True(parsedResponse.IsCompleted);
 
         var loadBoard = await DbContext.Boards
@@ -608,5 +687,82 @@ public class GameTests : BaseIntegrationTest
         Assert.NotEmpty(loadBoard.Executions);
         Assert.Equal(2, loadBoard.Executions.Count);
         Assert.Equal(1, loadBoard.Executions.Count(x => x.IsFinal));
+    }
+
+    [Fact]
+    public async Task CalculateBoardNextStepsState_OnBlinkerSchema_OnValidId_WhenLessStepsThanAllowedProvided_ShouldReturn200()
+    {
+        var state = new bool[][]
+        {
+            new bool[] { false, false, false },
+            new bool[] { true, true, true },
+            new bool[] { false, false, false }
+        };
+        var board = new Board
+        {
+            Name = "Test Next Board Step Blinker Schema",
+            InitialState = BoardState.FromJaggedArray(state)
+        };
+
+        await DbContext.Boards.AddAsync(board);
+        Assert.NotEqual(Guid.Empty, board.Id);
+
+        await DbContext.SaveChangesAsync();
+
+        var response = await PatchAsync($"api/v1/Game/{board.Id}/next/1");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var finalExpectedState = new bool[][]
+        {
+            new bool[] { false, true, false },
+            new bool[] { false, true, false },
+            new bool[] { false, true, false }
+        };
+        var parsedResponse = await ParseResponse<CalculatedBoardStateResponse>(response);
+
+        Assert.NotEqual(Guid.Empty, parsedResponse.Id);
+        Assert.Equal(board.Id, parsedResponse.Id);
+        Assert.Equal(board.Name, parsedResponse.Name);
+        Assert.Equal(state, parsedResponse.InitialState);
+        Assert.Equal(finalExpectedState, parsedResponse.State);
+        Assert.Equal(1, parsedResponse.CurrentStep);
+        Assert.Equal(1, parsedResponse.CalculatedSteps);
+        Assert.False(parsedResponse.IsCompleted);
+
+        var loadBoard = await DbContext.Boards
+            .AsNoTracking()
+            .Where(x => x.Id == board.Id)
+            .Include(x => x.Executions)
+            .FirstOrDefaultAsync();
+        Assert.NotNull(loadBoard);
+        Assert.NotNull(loadBoard.Executions);
+        Assert.NotEmpty(loadBoard.Executions);
+        Assert.Equal(1, loadBoard.Executions.Count);
+    }
+
+    [Fact]
+    public async Task CalculateBoardNextStepsState_OnLowerSteps_ShouldReturn400()
+    {
+        var state = new bool[][]
+        {
+            new bool[] { true, false, true },
+            new bool[] { true, true, true },
+            new bool[] { false, false, true },
+        };
+        var board = new Board
+        {
+            Name = "Test Next Board Step",
+            InitialState = BoardState.FromJaggedArray(state)
+        };
+
+        await DbContext.Boards.AddAsync(board);
+        Assert.NotEqual(Guid.Empty, board.Id);
+
+        await DbContext.SaveChangesAsync();
+
+        var response = await PatchAsync($"api/v1/Game/{Guid.NewGuid()}/next/0");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }

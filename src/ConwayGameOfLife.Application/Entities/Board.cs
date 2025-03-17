@@ -73,6 +73,23 @@ public class Board
         return execution;
     }
 
+    public BoardExecution ResolveNextExecution(int executionsToResolve, int maxExecutionsAllowed)
+    {
+        var latestExecution = GetLatestExecution();
+        var execution = latestExecution ?? ResolveNextExecution(maxExecutionsAllowed);
+        var indx = execution.Step;
+        var executionsCounter = latestExecution is null ? 1 : 0;
+
+        while (indx < maxExecutionsAllowed && executionsCounter < executionsToResolve && !execution.IsFinal)
+        {
+            executionsCounter++;
+            indx++;
+            execution = ResolveNextExecution(maxExecutionsAllowed);
+        }
+
+        return execution;
+    }
+
     private bool IsLastState(BoardState state)
     {
         var initialStateHash = InitialState.GetStateHash();

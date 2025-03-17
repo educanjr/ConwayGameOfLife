@@ -6,27 +6,27 @@ using ConwayGameOfLife.Application.Exceptions;
 using ConwayGameOfLife.Application.Repositories;
 using Microsoft.Extensions.Options;
 
-namespace ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateFinalStep;
+namespace ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateNextNSteps;
 
-internal sealed class CalculateFinalStepCommandHandler : ICommandHandler<CalculateFinalStepCommand, CalculateExecutionsDto>
+internal sealed class CalculateNextNStepsCommandHandler : ICommandHandler<CalculateNextNStepsCommand, CalculateExecutionsDto>
 {
     private readonly IBoardRepository _boardRepository;
     private readonly GameRullerConfig _gameRullerConfig;
 
-    public CalculateFinalStepCommandHandler(IBoardRepository boardRepository, IOptions<GameRullerConfig> gameRullerConfig)
+    public CalculateNextNStepsCommandHandler(IBoardRepository boardRepository, IOptions<GameRullerConfig> gameRullerConfig)
     {
         _boardRepository = boardRepository;
         _gameRullerConfig = gameRullerConfig.Value;
     }
 
-    public async Task<ResultObject<CalculateExecutionsDto>> Handle(CalculateFinalStepCommand request, CancellationToken cancellationToken)
+    public async Task<ResultObject<CalculateExecutionsDto>> Handle(CalculateNextNStepsCommand request, CancellationToken cancellationToken)
     {
         try
         {
             var board = await _boardRepository.GetBoardIncludingExecutions(request.Id) ??
                 throw new DataNotFoundException(nameof(Board), request.Id.ToString());
-            
-            var finalExecution = board.ResolveFinalExecution(_gameRullerConfig.MaxExecutionsAllowed);
+
+            var execution = board.ResolveNextExecution(request.Steps, _gameRullerConfig.MaxExecutionsAllowed);
 
             var unsavedExecutions = board.Executions!.Where(x => x.Id == Guid.Empty).ToList();
             await _boardRepository.AddExecutionsRange(unsavedExecutions);
@@ -35,14 +35,15 @@ internal sealed class CalculateFinalStepCommandHandler : ICommandHandler<Calcula
                Id: board.Id,
                Name: board.Name,
                InitialState: board.InitialState,
-               CurrentStep: finalExecution.Step,
-               IsCompleted: finalExecution.IsFinal,
-               State: finalExecution.State,
+               CurrentStep: execution.Step,
+               IsCompleted: execution.IsFinal,
+               State: execution.State,
                CalculatedSteps: unsavedExecutions.Count);
         }
         catch (Exception ex)
         {
-            return ex switch {
+            return ex switch
+            {
                 ExecutionLimitReachedException => ResultObject.ApplicationRuleViolation<CalculateExecutionsDto>(ex.Message),
                 _ => ResultObject.NotFound<CalculateExecutionsDto>(ex.Message),
             };

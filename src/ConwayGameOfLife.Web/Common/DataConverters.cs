@@ -23,4 +23,14 @@ internal static class DataConverters
             IsCompleted: applicationData.IsCompleted,
             State: applicationData.State.ToJaggedArrayState(),
             Step: requestedStep);
+
+    public static CalculatedBoardStateResponse CalculatedBoardStateConverter(CalculateExecutionsDto applicationData) =>
+        new(
+            Id: applicationData.Id,
+            Name: applicationData.Name,
+            InitialState: applicationData.InitialState.ToJaggedArrayState(),
+            CurrentStep: applicationData.CurrentStep,
+            IsCompleted: applicationData.IsCompleted,
+            State: applicationData.State.ToJaggedArrayState(),
+            CalculatedSteps: applicationData.CalculatedSteps);
 }
