@@ -105,7 +105,7 @@ The application is seeded with **two boards**:
 - **Blinker (3x3) Oscillator** -> `3fedc2a6-9743-4b8c-8087-c34cd0e383ad`
 - **Glider Gun (10x10)** -> `2229a2ca-3e77-4637-91e1-06e66630068b`
 
-Note: Responses will be simplified in this document.
+**Note:** Responses will be simplified in this document.
 
 ### **1️⃣ Get Current Board State**
 Retrieves the current state of a board.
