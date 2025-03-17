@@ -1,6 +1,7 @@
 # 🌀 Conway's Game of Life - .NET 7 Implementation
 
 ## 📖 About the Project
+
 This is a **.NET 7** implementation of **Conway's Game of Life**, following **Clean Architecture** principles.  
 It uses **CQRS with MediatR**, the **Repository Pattern**, and **EF Core** for data access.  
 The system is containerized using **Docker Compose**, with **PostgreSQL** as the database.
@@ -8,6 +9,7 @@ The system is containerized using **Docker Compose**, with **PostgreSQL** as the
 ---
 
 ## 🎮 Game Rules
+
 Conway's Game of Life is a **zero-player cellular automaton**, meaning its evolution is determined by its initial state.  
 Each cell in a **2D grid** can be **alive (`true`) or dead (`false`)** and follows these rules:
 
@@ -22,30 +24,39 @@ The simulation progresses by applying these rules to all cells **simultaneously*
 
 ## 📂 Project Structure
 
-The solution follows **Clean Architecture** with clearly defined layers:
+The solution follows Clean Architecture, with clearly defined layers and strong domain entities. Since the application is relatively small, a dedicated Domain project was not added, but domain-specific logic is encapsulated within the Application layer.
 
 ```
 ConwayGameOfLife.sln
 │
 ├── 📂 ConwayGameOfLife.App           # 🚀 Startup & service orchestrator
 │   ├── Program.cs                     # App entry point
-│   ├── Configuration                   # App configuration
-│   ├── Middleware                      # API Middleware
+│   ├── Configuration                  # App configuration
+│   ├── OptionsSetup                   # Options from AppSettings
 │
 ├── 📂 ConwayGameOfLife.Application    # 🧠 Business logic & domain definitions
-│   ├── Features                        # Use cases (CQRS commands/queries with MediatR)
-│   ├── Models                          # Domain entities & aggregates
-│   ├── Interfaces                      # Application service contracts
+│   ├── Abstractions                    # Application layer abstractions and contracts
+│   ├── CommandAndQueries               # Use cases (CQRS commands/queries with MediatR)
+│   ├── Entities                        # Domain entities & aggregates
+│   ├── Repositories                    # Repositories contracts
+│   ├── Exceptions                      # Custom Exceptions
+│   ├── Dtos                            # Domain transfer options
+│   ├── ConfigOptions                   # Object models for configuration options
+│   ├── Common                          # Common objects and patterns (like Result Object pattern implementation)
 │
 ├── 📂 ConwayGameOfLife.Data           # 💾 EF Core database setup
 │   ├── DbContext                        # Entity Framework Core database context
-│   ├── Repositories                     # Basic Repository pattern
+│   ├── Configurations                   # DB Entity Framework Core configuration files for Entitiy Types
+│   ├── Repositories                     # Basic Repository pattern implementation
 │   ├── Migrations                       # EF Core database migrations
+│   ├── Abstractions                     # Data ayer abstractions (like Base Repository)
+│   ├── DbContextFactory                 # Entity Framework Core database context factory
 │
 ├── 📂 ConwayGameOfLife.Web            # 🎨 Presentation layer (Controllers & API)
 │   ├── Controllers                      # API Controllers
-│   ├── Models                           # API request/response DTOs
-│   ├── Swagger                          # API documentation setup
+│   ├── Contracts                        # API request/response DTOs
+│   ├── Middleware                       # API Middlewares 
+│   ├── Abstractions                     # Presentation layer abstractions (like Base Controller)
 │
 ├── 📂 ConwayGameOfLife.IntegrationTests  # 🔬 Integration tests with TestContainers
 │
@@ -90,14 +101,14 @@ Once running, the API is available at:
 
 ## 🏗️ CQRS with MediatR
 The project uses **CQRS (Command Query Responsibility Segregation)** via **MediatR**.  
-- **Commands:** Used for modifying data (`CreateBoardCommand`, `CalculateNextStateCommand`).  
-- **Queries:** Used for retrieving data (`GetBoardQuery`, `GetFinalStateQuery`).  
+- **Commands:** Used for modifying data (`RegisterBoardCommand`, `CalculateNextStepCommand`, `CalculateNextNStepsCommand`, `CalculateFinalStepCommand`).  
+- **Queries:** Used for retrieving data (`GetCurrentBoardQuery`, `GetBoardStepQuery`).  
 
 ### **Example Command**
 ```csharp
-public record CalculateNextStateCommand(Guid BoardId) : IRequest<BoardState>;
+public record CalculateNextStepCommand(Guid Id) : ICommand<BoardStateDto>;
 
-public class CalculateNextStateHandler : IRequestHandler<CalculateNextStateCommand, BoardState>
+public class CalculateNextStepCommandHandler : ICommandHandler<CalculateNextStepCommand, BoardStateDto>
 {
     private readonly IBoardRepository _boardRepository;
 
@@ -106,12 +117,18 @@ public class CalculateNextStateHandler : IRequestHandler<CalculateNextStateComma
         _boardRepository = boardRepository;
     }
 
-    public async Task<BoardState> Handle(CalculateNextStateCommand request, CancellationToken cancellationToken)
+    public async Task<BoardStateDto> Handle(CalculateNextStateCommand request, CancellationToken cancellationToken)
     {
-        var board = await _boardRepository.GetByIdAsync(request.BoardId);
-        var nextState = board.CalculateNextState();
-        await _boardRepository.UpdateAsync(board);
-        return nextState;
+        var board = await _boardRepository.GetBoardIncludingExecutions(request.BoardId);
+        var nextExecution = board.ResolveNextExecution();
+        await _boardRepository.AddExecution(nextExecution);
+        return new BoardStateDto(
+            Id: board.Id,
+            Name: board.Name,
+            InitialState: board.InitialState,
+            CurrentStep: nextExecution.Step,
+            IsCompleted: nextExecution.IsFinal,
+            State: nextExecution.State);
     }
 }
 ```
@@ -149,7 +166,4 @@ Contributions are welcome! If you have improvements or bug fixes, feel free to *
 ✅ **PostgreSQL database** with **EF Core**  
 ✅ **Docker Compose** for containerized deployment  
 ✅ **Integration tests with TestContainers**  
-✅ **Clean Architecture with separation of concerns**  
-
-🚀 **Now you have a structured and professional `README.md` for your project!** 🚀🔥
-
+✅ **Clean Architecture with separation of concerns**
