@@ -65,4 +65,23 @@ public class BoardRepository : BaseRepository, IBoardRepository
 
         return board ?? default!;
     }
+
+    public async ValueTask<Board?> GetBoardIncludingExecutions(Guid id)
+    {
+        var board = await ConwayDbContext.Boards
+            .AsNoTracking()
+            .Include(x => x.Executions)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        return board ?? default!;
+    }
+
+    public async ValueTask<BoardExecution?> AddExecution(BoardExecution execution)
+    {
+        var result = await ConwayDbContext.BoardExecutions.AddAsync(execution);
+
+        await ConwayDbContext.SaveChangesAsync();
+
+        return result.Entity;
+    }
 }

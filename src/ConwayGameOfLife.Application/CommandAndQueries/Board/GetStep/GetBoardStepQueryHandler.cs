@@ -6,7 +6,7 @@ using ConwayGameOfLife.Application.Repositories;
 
 namespace ConwayGameOfLife.Application.CommandAndQueries.Board.GetStep;
 
-internal class GetBoardStepQueryHandler : IQueryHandler<GetBoardStepQuery, BoardStateDto>
+internal sealed class GetBoardStepQueryHandler : IQueryHandler<GetBoardStepQuery, BoardStateDto>
 {
     private readonly IBoardRepository _boardRepository;
 

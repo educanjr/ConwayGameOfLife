@@ -9,4 +9,8 @@ public interface IBoardRepository
     ValueTask<Board?> GetBoardIncludingOnlyCurrentExecution(Guid id);
 
     ValueTask<Board?> GetBoardIncludingExecution(Guid id, uint executionStep);
+
+    ValueTask<Board?> GetBoardIncludingExecutions(Guid id);
+
+    ValueTask<BoardExecution?> AddExecution(BoardExecution execution);
 }

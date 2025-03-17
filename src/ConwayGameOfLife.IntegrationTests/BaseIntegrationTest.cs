@@ -32,6 +32,11 @@ public abstract class BaseIntegrationTest : IClassFixture<IntegrationTestWebAppF
         return await Client!.GetAsync(url);
     }
 
+    protected async Task<HttpResponseMessage> PatchAsync(string url)
+    {
+        return await Client!.PatchAsync(url, default);
+    }
+
     protected async Task<HttpResponseMessage> PostAsync<TRequest>(string url, TRequest? data)
     {
         var jsonData = data is null ? string.Empty : JsonConvert.SerializeObject(data);
