@@ -1,0 +1,144 @@
+{
+	"info": {
+		"_postman_id": "314a4143-87d1-474d-8250-b33da28bb2d6",
+		"name": "Conway",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15803909"
+	},
+	"item": [
+		{
+			"name": "CalculateBoardNextState",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game/{{Blinker_Id}}/next",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game",
+						"{{Blinker_Id}}",
+						"next"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CalculateBoardNextStepsState",
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game/{{GliderGun_Id}}}}/next/20",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game",
+						"{{GliderGun_Id}}}}",
+						"next",
+						"20"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateBoard",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"name\": \"Toad Oscillator\",\r\n  \"state\": [\r\n    [false, false, false, false],\r\n    [false, true,  true,  true ],\r\n    [true,  true,  true,  false],\r\n    [false, false, false, false]\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetCurrentBoardState",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game/{{Blinker_Id}}",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game",
+						"{{Blinker_Id}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetBoardState",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game/{{GliderGun_Id}}}}/steps/20",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game",
+						"{{GliderGun_Id}}}}",
+						"steps",
+						"20"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetBoardFinalState",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Docker_URL}}/api/v1/Game/{{Blinker_Id}}/final",
+					"host": [
+						"{{Docker_URL}}"
+					],
+					"path": [
+						"api",
+						"v1",
+						"Game",
+						"{{Blinker_Id}}",
+						"final"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

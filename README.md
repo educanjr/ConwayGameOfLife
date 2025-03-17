@@ -99,6 +99,87 @@ Once running, the API is available at:
 
 ---
 
+## 📡 API Endpoints
+The API provides multiple endpoints for interacting with the Game of Life simulation. A **Postman collection** is available at the root of the repository for testing these endpoints. 
+The application is seeded with **two boards**:
+- **Blinker (3x3) Oscillator** -> `3fedc2a6-9743-4b8c-8087-c34cd0e383ad`
+- **Glider Gun (10x10)** -> `2229a2ca-3e77-4637-91e1-06e66630068b`
+
+Note: Responses will be simplified in this document.
+
+### **1️⃣ Get Current Board State**
+Retrieves the current state of a board.
+
+**Request:**
+```http
+GET /api/v1/Game/{Blinker_Id}
+```
+
+**Example Response:**
+```json
+{
+  "name": "Blinker 3x3",
+  "state": [
+    [false, false, false],
+    [true,  true,  true ],
+    [false, false, false]
+  ]
+}
+```
+
+### **2️⃣ Calculate the Next State of a Board**
+Applies **one step of evolution** based on Conway’s rules. If this endpoint is called after board reaches a stable state or the max iterations are exceeded an error is returned.
+
+**Request:**
+```http
+PATCH /api/v1/Game/{Blinker_Id}/next
+```
+
+**Example Response:**
+```json
+{
+  "state": [
+    [false, true, false],
+    [false, true, false],
+    [false, true, false]
+  ]
+}
+```
+
+### **3️⃣ Calculate Multiple Steps Ahead**
+Computes **a given number of steps** in advance.
+
+**Request:**
+```http
+PATCH /api/v1/Game/{Blinker_Id}/next/{steps}
+```
+
+**Example for 2 Steps:**
+```json
+{
+  "state": [
+    [false, false, false],
+    [true,  true,  true ],
+    [false, false, false]
+  ]
+}
+```
+📌 The **Blinker** oscillates between two states every step.
+
+### **4️⃣ Get the Final State**
+Applies all required **step of evolution** based on Conway’s rules. Until board reach to the **final stable state** or the **last possible state**, based on the maximun ammount of executions allowed.
+
+**Request:**
+```http
+GET /api/v1/Game/{Blinker_Id}/final
+```
+
+**Response:**
+Retrieves the **final stable state** or the **last possible state**, based on max executions allowed, of the board.
+
+
+---
+
 ## 🏗️ CQRS with MediatR
 The project uses **CQRS (Command Query Responsibility Segregation)** via **MediatR**.  
 - **Commands:** Used for modifying data (`RegisterBoardCommand`, `CalculateNextStepCommand`, `CalculateNextNStepsCommand`, `CalculateFinalStepCommand`).  
