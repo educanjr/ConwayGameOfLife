@@ -128,7 +128,7 @@ GET /api/v1/Game/{Blinker_Id}
 ```
 
 ### **2️⃣ Calculate the Next State of a Board**
-Applies **one step of evolution** based on Conway’s rules. If this endpoint is called after board reaches a stable state or the max iterations are exceeded an error is returned.
+Applies **one step of evolution** from current status based on Conway’s rules. If this endpoint is called after board reaches a stable state or the max iterations are exceeded an error is returned.
 
 **Request:**
 ```http
