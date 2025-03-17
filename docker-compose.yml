@@ -15,7 +15,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
-      - ConnectionStrings__ConwayDatabase=User ID=postgres;Password=postgres;Server=app_db;Port=5432;Database=ConwayGameDb;IntegratedSecurity=true;Pooling=true;
+      - ConnectionStrings__ConwayDatabase=User ID=postgres;Password=postgres;Server=conwaygame_db;Port=5432;Database=ConwayGameDb;IntegratedSecurity=true;Pooling=true;
     ports:
       - "7006:80"
     volumes:
