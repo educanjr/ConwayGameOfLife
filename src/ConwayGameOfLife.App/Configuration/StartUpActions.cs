@@ -1,4 +1,5 @@
 ﻿using ConwayGameOfLife.Data;
+using ConwayGameOfLife.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
 
 namespace ConwayGameOfLife.App.Configuration;
@@ -24,5 +25,10 @@ public static class StartUpActions
 
             throw;
         }
+    }
+
+    public static void RegisterMiddlewares(this IApplicationBuilder app)
+    {
+        app.UseMiddleware<ExeptionProcessMiddleware>();
     }
 }

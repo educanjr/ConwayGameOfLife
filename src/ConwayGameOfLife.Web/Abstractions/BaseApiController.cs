@@ -46,16 +46,12 @@ public abstract class BaseApiController<TController> : ControllerBase
         };
     }
 
-    protected IActionResult HandleError(Exception error)
+    protected IActionResult HandleError(Exception exception)
     {
-        Logger.LogError(error.Message, error);
-        return StatusCode(
-            StatusCodes.Status500InternalServerError,
-            ResponsesGenerationUtil.CreateProblemDetails(
-                "Unexpected error",
-                StatusCodes.Status500InternalServerError.ToString(),
-                error.Message,
-                StatusCodes.Status500InternalServerError));
+        Logger.LogError(exception.Message, exception);
+        var (statusCode, response) = ErrorResponseFactory.BuildErrorResponse(exception);
+
+        return StatusCode((int)statusCode, response);
     }  
 
     protected static Task NotImplementedEndpointPlaceholder() =>
