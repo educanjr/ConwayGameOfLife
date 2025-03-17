@@ -29,6 +29,8 @@ public abstract class BaseApiController<TController> : ControllerBase
         {
             ErrorCode.NotFound => NotFound(
                 ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status404NotFound)),
+            ErrorCode.ApplicationRuleViolation => Conflict(
+                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status409Conflict)),
             ErrorCode.InternalError => StatusCode(
                 StatusCodes.Status500InternalServerError,
                 ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status500InternalServerError)),

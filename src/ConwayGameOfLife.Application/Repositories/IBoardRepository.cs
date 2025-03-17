@@ -13,4 +13,5 @@ public interface IBoardRepository
     ValueTask<Board?> GetBoardIncludingExecutions(Guid id);
 
     ValueTask<BoardExecution?> AddExecution(BoardExecution execution);
+    Task AddExecutionsRange(IList<BoardExecution> executions);
 }

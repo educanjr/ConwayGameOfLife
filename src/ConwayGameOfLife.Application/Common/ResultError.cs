@@ -18,5 +18,6 @@ public class ResultError
 public enum ErrorCode
 {
     InternalError,
-    NotFound
+    NotFound,
+    ApplicationRuleViolation
 }

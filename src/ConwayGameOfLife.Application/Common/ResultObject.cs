@@ -70,6 +70,20 @@ public class ResultObject
            Message = string.Join(Environment.NewLine, errorMessages)
        });
 
+    public static ResultObject ApplicationRuleViolation(params string[] errorMessages) => new(
+        new ResultError
+        {
+            Code = ErrorCode.ApplicationRuleViolation,
+            Message = string.Join(Environment.NewLine, errorMessages)
+        });
+
+    public static ResultObject<TResult> ApplicationRuleViolation<TResult>(params string[] errorMessages) => new(
+       new ResultError
+       {
+           Code = ErrorCode.ApplicationRuleViolation,
+           Message = string.Join(Environment.NewLine, errorMessages)
+       });
+
     public static ResultObject<TResult> Create<TResult>(TResult? value) =>
         value is not null ? Success(value) : Error<TResult>("Cannot create a result object with NULL value.");
 }

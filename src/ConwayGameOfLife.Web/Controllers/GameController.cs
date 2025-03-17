@@ -1,3 +1,4 @@
+using ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateFinalStep;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.CalculateNextStep;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.GetCurrent;
 using ConwayGameOfLife.Application.CommandAndQueries.Board.GetStep;
@@ -143,8 +144,12 @@ public class GameController : BaseApiController<GameController>
     {
         try
         {
-            await NotImplementedEndpointPlaceholder();
-            return Ok();
+            return await ResultObject
+                .Create(new CalculateFinalStepCommand(id))
+                .Bind(cmd => Sender.Send(cmd))
+                .Match(
+                    board => Ok(DataConverters.CurrentBoardStateConverter(board)),
+                    HandleFailure);
         }
         catch (Exception ex)
         {

@@ -52,7 +52,7 @@ public class BoardState
         int cols = State.GetLength(1);
 
         int totalCells = rows * cols;
-        int parallelThreshold = 5000;
+        int parallelThreshold = 2500;
 
         //Since each cell's next state is independent of others, we can use Parallel.For to calculate the next state
         var nextState = totalCells < parallelThreshold ? 

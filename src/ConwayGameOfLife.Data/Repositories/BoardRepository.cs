@@ -2,6 +2,7 @@
 using ConwayGameOfLife.Application.Repositories;
 using ConwayGameOfLife.Data.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ConwayGameOfLife.Data.Repositories;
 
@@ -83,5 +84,11 @@ public class BoardRepository : BaseRepository, IBoardRepository
         await ConwayDbContext.SaveChangesAsync();
 
         return result.Entity;
+    }
+
+    public async Task AddExecutionsRange(IList<BoardExecution> executions)
+    {
+        await ConwayDbContext.BoardExecutions.AddRangeAsync(executions);
+        await ConwayDbContext.SaveChangesAsync();
     }
 }

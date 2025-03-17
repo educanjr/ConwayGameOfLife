@@ -1,4 +1,6 @@
-﻿namespace ConwayGameOfLife.Application.Entities;
+﻿using ConwayGameOfLife.Application.Exceptions;
+
+namespace ConwayGameOfLife.Application.Entities;
 
 public class Board
 {
@@ -28,19 +30,26 @@ public class Board
         return Executions.FirstOrDefault(e => e.Step == executionStep);
     }
 
-    public BoardExecution ResolveNextExecution()
+    public BoardExecution ResolveNextExecution(int maxExecutionsAllowed)
     {
         var latestExecution = GetLatestExecution();
         var currentState = latestExecution?.State ?? InitialState;
         var currentStep = latestExecution?.Step ?? 0;
+        var isCompleted = latestExecution?.IsFinal ?? false;
+
+        if (isCompleted || currentStep >= maxExecutionsAllowed)
+        {
+            throw new ExecutionLimitReachedException();
+        }
 
         var nextState = currentState.ComputeNextState();
-        var isLastState = IsLastState(nextState);
+        var nextStep = currentStep + 1;
+        var isLastState = nextStep == maxExecutionsAllowed || IsLastState(nextState);
 
         var nextExecution = new BoardExecution
         {
             BoardId = Id,
-            Step = currentStep + 1,
+            Step = nextStep,
             State = nextState,
             IsFinal = isLastState
         };
@@ -48,6 +57,20 @@ public class Board
         AddExecutionToList(nextExecution);
 
         return nextExecution;
+    }
+
+    public BoardExecution ResolveFinalExecution(int maxExecutionsAllowed)
+    {
+        var execution = GetLatestExecution() ?? ResolveNextExecution(maxExecutionsAllowed);
+        var indx = execution.Step;
+
+        while (indx < maxExecutionsAllowed && !execution.IsFinal)
+        {
+            indx++;
+            execution = ResolveNextExecution(maxExecutionsAllowed);
+        }
+
+        return execution;
     }
 
     private bool IsLastState(BoardState state)
