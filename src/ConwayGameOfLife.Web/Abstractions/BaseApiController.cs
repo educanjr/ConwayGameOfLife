@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
+using ConwayGameOfLife.Web.Logging;
 
 namespace ConwayGameOfLife.Web.Abstractions;
 
@@ -24,27 +25,38 @@ public abstract class BaseApiController<TController> : ControllerBase
         _logger = logger;
     }
 
-    protected IActionResult HandleFailure(ResultError error) =>
-        error.Code switch
+    protected IActionResult HandleFailure(ResultError error)
+    {
+        if (error.Code == ErrorCode.InternalError)
+        {
+            Logger.LogError(error.Message, new InvalidOperationException(error.Message));
+            return StatusCode(
+                StatusCodes.Status500InternalServerError,
+                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status500InternalServerError));
+        }
+
+        Logger.LogExpectedFailure(error.Message);
+        return error.Code switch
         {
             ErrorCode.NotFound => NotFound(
                 ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status404NotFound)),
             ErrorCode.ApplicationRuleViolation => Conflict(
                 ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status409Conflict)),
-            ErrorCode.InternalError => StatusCode(
-                StatusCodes.Status500InternalServerError,
-                ResponsesGenerationUtil.CreateProblemDetails(error, StatusCodes.Status500InternalServerError)),
             _ => throw new InvalidOperationException(),
         };
+    }
 
-    protected IActionResult HandleError(Exception error) =>
-        StatusCode(
+    protected IActionResult HandleError(Exception error)
+    {
+        Logger.LogError(error.Message, error);
+        return StatusCode(
             StatusCodes.Status500InternalServerError,
             ResponsesGenerationUtil.CreateProblemDetails(
-                "Bad Request",
-                StatusCodes.Status400BadRequest.ToString(),
+                "Unexpected error",
+                StatusCodes.Status500InternalServerError.ToString(),
                 error.Message,
-                StatusCodes.Status400BadRequest));
+                StatusCodes.Status500InternalServerError));
+    }  
 
     protected static Task NotImplementedEndpointPlaceholder() =>
         Task.FromException(new NotImplementedException());
