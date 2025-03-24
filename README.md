@@ -80,6 +80,20 @@ ConwayGameOfLife.sln
 
 ---
 
+## 🌍 Environment Variables
+
+These variables are used to configure the behavior of the Conway's Game of Life API. Only the essential ones used by the API are listed below.
+
+| Variable                              | Description                              | Example Value                                                  |
+|---------------------------------------|------------------------------------------|----------------------------------------------------------------|
+| `ConnectionStrings__ConwayDatabase`   | PostgreSQL connection string             | `User ID=postgres;Password=postgres;Server=conwaygame_db;...`  |
+| `GameRuller:MaxExecutionsAllowed`     | Max number of board evolution steps      | `100`                                                          |
+| `ASPNETCORE_ENVIRONMENT`              | ASP.NET environment profile              | `Production`                                                   |
+
+📎 **Note:** These are set in `appsettings.Development.json` for local development, and overridden in `docker-compose.yml` for containerized environments.
+
+---
+
 ## 🛠️ How to Build & Run with Docker
 
 ### **1️⃣ Clone the Repository**

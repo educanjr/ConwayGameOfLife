@@ -4,6 +4,8 @@
 
 This documentation describes the architecture for Conway's Game of Life implemented using .NET 7, leveraging Clean Architecture principles, CQRS with MediatR, Repository Pattern, and Entity Framework Core. The application is deployed using Docker Compose, with PostgreSQL as the persistence layer.
 
+--
+
 ## Architectural Principles
 
 ### Clean Architecture
@@ -240,6 +242,26 @@ These benchmarks demonstrate that:
 - **Parallel Method**: Recommended for boards with >2,500 cells, achieving improved processing time on multi-core systems
 
 This intelligent dispatching of compute strategy avoids premature optimization while still delivering performance gains where appropriate.
+
+---
+
+## Configuration and Environment Variables
+
+The API configuration depends on a few critical environment variables and application settings defined across `appsettings.json`, `appsettings.Development.json`, and `docker-compose.yml`.
+
+### `MaxExecutionsAllowed`
+This value is configured under the `GameRuller` section:
+- **Purpose**: Defines the maximum number of generations a board is allowed to compute.
+- **Location**: `appsettings.json`, `appsettings.Development.json`
+- **Default**: `100`
+- **Injection**: Injected via `IOptions<GameRullerConfig>` into application logic.
+
+### `ConwayDatabase` Connection String
+- **Purpose**: Provides database connection details for PostgreSQL.
+- **Environment Variable**: `ConnectionStrings__ConwayDatabase`
+- **Local (Dev)**: Connects via `localhost:5433`
+- **Docker (Prod)**: Connects to `conwaygame_db:5432` as defined in `docker-compose.yml`
+- **Used by**: The EF Core `DbContext`
 
 ---
 
