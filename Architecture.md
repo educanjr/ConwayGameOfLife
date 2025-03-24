@@ -29,7 +29,7 @@ This documentation describes the architecture for Conway's Game of Life implemen
 - Contains Controllers, DTOs (Contracts), Middleware, and abstractions (Base Controllers).
 - Uses Swagger UI for API documentation and interaction.
 
-**Application Layer (ConwayGameOfLife.Application)**
+**Application/Domain Layer (ConwayGameOfLife.Application)**
 - Houses business logic, domain entities, commands, queries, exceptions, DTOs, and configurations.
 - MediatR orchestrates command and query handlers.
 - Implements the Result Object pattern for structured response handling.
@@ -65,8 +65,8 @@ This documentation describes the architecture for Conway's Game of Life implemen
 
 - `App` orchestrates all dependencies and configuration.
 - `Web` handles incoming requests and invokes `Application` logic.
-- `Data` provides EF-based implementations of interfaces defined in `Application`.
-- `Application` remains independent, defining contracts and behavior without implementation dependencies.
+- `Data` provides access to stored data and EF-based implementations of Repository interfaces defined in `Application`.
+- `Application` remains independent, defining entities and behavior without third party dependencies.
 - PostgreSQL is injected as infrastructure, resolved through configuration at runtime.
 
 ### Layer Interaction Flow
@@ -84,8 +84,8 @@ This documentation describes the architecture for Conway's Game of Life implemen
         |  (Business Logic Layer)      |
         +-------------+----------------+
                       ^
-                      | Data --references> Application
-                      | Application --calls> Data implementation via DI
+                      | Data --references-> Application
+                      | Application --calls-> Data implementation via DI
                       v
         +-------------+----------------+
         |   ConwayGameOfLife.Data      |
@@ -161,7 +161,7 @@ Having separate DTOs for the presentation layer (Contracts) instead of directly 
 - **Security and Validation**: Provides a place to manage validation and security checks specific to the API layer.
 
 ### Scalability of Data Mapping
-As the project grows, maintaining all mappings within a single file (such as the `DataConverters` class) can become challenging due to increased complexity and reduced readability. A recommended approach would be to adopt a structured strategy, such as creating individual mapper classes or profiles for each domain entity or operation.
+As the project grows, maintaining all mappings within a single file (such as the `DataConverters` class) could become challenging due to increased complexity and reduced readability. A recommended approach would be to adopt a structured strategy, such as creating individual mapper classes or profiles for each domain entity or operation.
 
 #### Example Recommendation:
 ```csharp
@@ -341,6 +341,8 @@ This value is configured under the `GameRuller` section:
 - **Database:** PostgreSQL
 - **Containerization:** Docker Compose
 - **Testing:** xUnit, TestContainers
+
+---
 
 ## Conclusion
 
