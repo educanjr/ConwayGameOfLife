@@ -22,7 +22,7 @@ This documentation describes the architecture for Conway's Game of Life implemen
 
 ## Architecture 
 
-### 1. Layers
+### Layers
 
 **Presentation Layer (ConwayGameOfLife.Web)**
 - Handles API interactions.
@@ -39,7 +39,7 @@ This documentation describes the architecture for Conway's Game of Life implemen
 - Contains DbContext, configurations for entities, migration scripts, and repository implementations.
 - Provides abstractions for repositories and DbContextFactory for controlled DB context creation.
 
-### 2. Project Reference Structure
+### Project Reference Structure
 
 ```text
                 +--------------------------------------+
@@ -69,7 +69,7 @@ This documentation describes the architecture for Conway's Game of Life implemen
 - `Application` remains independent, defining contracts and behavior without implementation dependencies.
 - PostgreSQL is injected as infrastructure, resolved through configuration at runtime.
 
-### 3. Layer Interaction Flow
+### Layer Interaction Flow
 
 ```text
         +----------------------------+
@@ -98,6 +98,19 @@ This documentation describes the architecture for Conway's Game of Life implemen
         |     PostgreSQL Database     |
         +-----------------------------+
 ```
+
+### Separation of App (Startup) and Web (Controllers)
+
+Clean Architecture prescribes that the **Presentation Layer** should sit alongside the **Infrastructure Layer** — both depend on the **Application Layer**, but not on each other. In this solution:
+
+- **`ConwayGameOfLife.Web`** only contains Controllers and API contracts. It does **not** reference the `Data` project.
+- **`ConwayGameOfLife.App`** acts as the **Composition Root**, configuring DI and setting up the entire application. It references **Web**, **Application**, and **Data**.
+
+This separation achieves:
+- ✅ Adherence to Clean Architecture: Controllers (presentation) don't leak into or depend on infrastructure.
+- ✅ Maintainability: You can swap or refactor API contracts without affecting startup logic.
+- ✅ Testability: The web layer remains lightweight and mockable.
+- ✅ Clear Boundaries: The startup logic is decoupled from request handling logic.
 
 ---
 
