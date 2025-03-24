@@ -4,7 +4,7 @@
 
 This documentation describes the architecture for Conway's Game of Life implemented using .NET 7, leveraging Clean Architecture principles, CQRS with MediatR, Repository Pattern, and Entity Framework Core. The application is deployed using Docker Compose, with PostgreSQL as the persistence layer.
 
---
+---
 
 ## Architectural Principles
 
@@ -56,7 +56,7 @@ This documentation describes the architecture for Conway's Game of Life implemen
                     \                         /
                      \________       ________/
                               |     |
-                              v    v
+                              v     v
                  +------------------------------+
                  | ConwayGameOfLife.Application |
                  | (CQRS, Entities, Interfaces) |
