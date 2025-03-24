@@ -20,30 +20,84 @@ This documentation describes the architecture for Conway's Game of Life implemen
 
 ---
 
-## Architecture Layers
+## Architecture 
 
-### 1. Presentation Layer (ConwayGameOfLife.Web)
+### 1. Layers
+
+**Presentation Layer (ConwayGameOfLife.Web)**
 - Handles API interactions.
 - Contains Controllers, DTOs (Contracts), Middleware, and abstractions (Base Controllers).
 - Uses Swagger UI for API documentation and interaction.
 
-### 2. Application Layer (ConwayGameOfLife.Application)
+**Application Layer (ConwayGameOfLife.Application)**
 - Houses business logic, domain entities, commands, queries, exceptions, DTOs, and configurations.
 - MediatR orchestrates command and query handlers.
 - Implements the Result Object pattern for structured response handling.
 
-### 3. Data Layer (ConwayGameOfLife.Data)
+**Data Layer (ConwayGameOfLife.Data)**
 - Manages persistence using Entity Framework Core.
 - Contains DbContext, configurations for entities, migration scripts, and repository implementations.
 - Provides abstractions for repositories and DbContextFactory for controlled DB context creation.
 
-### 4. Infrastructure
-- Docker Compose is used for containerization, connecting application containers to PostgreSQL.
-- TestContainers are used for integration testing, ensuring environment parity.
+### 2. Project Reference Structure
 
-### 5. Testing Layers
-- Integration tests (ConwayGameOfLife.IntegrationTests) ensure system reliability.
-- Architecture tests (ConwayGameOfLife.ArchitectureTests) validate adherence to architectural rules.
+```text
+                +--------------------------------------+
+                |       ConwayGameOfLife.App           |
+                |     (Startup & DI Orchestration)     |
+                +------------------+-------------------+
+                  references      |          references
+                                  v
+         +----------------------+   +-----------------------+
+         | ConwayGameOfLife.Web |   | ConwayGameOfLife.Data |
+         | (Controllers & APIs) |   | (EF + Repo Impl)      |
+         +---------+------------+   +-----------+------------+
+                   \                           /
+                    \                         /
+                     \________       ________/
+                              |     |
+                              v    v
+                 +------------------------------+
+                 | ConwayGameOfLife.Application |
+                 | (CQRS, Entities, Interfaces) |
+                 +------------------------------+
+```
+
+- `App` orchestrates all dependencies and configuration.
+- `Web` handles incoming requests and invokes `Application` logic.
+- `Data` provides EF-based implementations of interfaces defined in `Application`.
+- `Application` remains independent, defining contracts and behavior without implementation dependencies.
+- PostgreSQL is injected as infrastructure, resolved through configuration at runtime.
+
+### 3. Layer Interaction Flow
+
+```text
+        +----------------------------+
+        |   ConwayGameOfLife.Web     |
+        | (Presentation Layer)       |
+        +-------------+--------------+
+                      |
+                      | references
+                      v
+        +------------------------------+
+        | ConwayGameOfLife.Application |
+        |  (Business Logic Layer)      |
+        +-------------+----------------+
+                      ^
+                      | Data --references> Application
+                      | Application --calls> Data implementation via DI
+                      v
+        +-------------+----------------+
+        |   ConwayGameOfLife.Data      |
+        |   (Data Access Layer)        |
+        +------------------------------+
+                      |
+                      | connects via EF Core
+                      v
+        +-----------------------------+
+        |     PostgreSQL Database     |
+        +-----------------------------+
+```
 
 ---
 
