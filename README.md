@@ -6,6 +6,8 @@ This is a **.NET 7** implementation of **Conway's Game of Life**, following **Cl
 It uses **CQRS with MediatR**, the **Repository Pattern**, and **EF Core** for data access.  
 The system is containerized using **Docker Compose**, with **PostgreSQL** as the database.
 
+📚 For detailed architecture, see the [Architecture Documentation](./Architecture.md).
+
 ---
 
 ## 🎮 Game Rules
