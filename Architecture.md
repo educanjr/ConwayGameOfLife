@@ -16,6 +16,106 @@ This documentation describes the architecture for Conway's Game of Life implemen
 ### Repository Pattern
 - Abstracts data access logic, improving testability and encapsulation of data source specifics.
 
+---
+
+## Architecture Layers
+
+### 1. Presentation Layer (ConwayGameOfLife.Web)
+- Handles API interactions.
+- Contains Controllers, DTOs (Contracts), Middleware, and abstractions (Base Controllers).
+- Uses Swagger UI for API documentation and interaction.
+
+### 2. Application Layer (ConwayGameOfLife.Application)
+- Houses business logic, domain entities, commands, queries, exceptions, DTOs, and configurations.
+- MediatR orchestrates command and query handlers.
+- Implements the Result Object pattern for structured response handling.
+
+### 3. Data Layer (ConwayGameOfLife.Data)
+- Manages persistence using Entity Framework Core.
+- Contains DbContext, configurations for entities, migration scripts, and repository implementations.
+- Provides abstractions for repositories and DbContextFactory for controlled DB context creation.
+
+### 4. Infrastructure
+- Docker Compose is used for containerization, connecting application containers to PostgreSQL.
+- TestContainers are used for integration testing, ensuring environment parity.
+
+### 5. Testing Layers
+- Integration tests (ConwayGameOfLife.IntegrationTests) ensure system reliability.
+- Architecture tests (ConwayGameOfLife.ArchitectureTests) validate adherence to architectural rules.
+
+---
+
+## Deployment Architecture
+
+### Containerized Deployment (Docker Compose)
+
+- **API Container**: ASP.NET Core Web API, accessible via port 7006.
+- **Database Container**: PostgreSQL database, accessible via port 5433.
+- Containers communicate through a dedicated network (`conwaygame.devnetwork`).
+
+---
+
+## API Design & Interaction
+
+- RESTful API following CRUD operations.
+- Endpoints defined clearly for board state management (current state, next state, multiple steps, and final state).
+- JSON structured responses.
+
+---
+
+## Result Object Pattern
+
+### Why Use Result Objects Over Exceptions?
+
+The Result Object pattern provides a structured way to handle operation outcomes, distinguishing clearly between successful and failed operations without relying on exceptions. Unlike exceptions, Result Objects make failure scenarios explicit in the method's contract, which significantly improves readability, clarity, and predictability of the code. 
+
+### Impact on Maintainability
+- **Explicit Error Handling**: Developers are forced to handle potential errors explicitly, avoiding hidden or unhandled exceptions at runtime.
+- **Clearer Business Logic**: The Result Object communicates intent clearly, allowing developers to easily understand success and failure pathways in the code.
+- **Improved Debugging**: Errors returned through Result Objects contain structured and informative error messages, enhancing debugging and reducing maintenance overhead.
+- **Predictable Flow**: Results enable predictable application flow, as all possible outcomes (success, failure, validation errors, etc.) are explicitly stated and managed.
+
+---
+
+## Custom Data Mapping
+
+### Custom Mappers vs. AutoMapper or Mapster
+Using custom mappers (like the `DataConverters` class) instead of mapping libraries such as AutoMapper or Mapster offers greater control, clarity, and debuggability:
+- **Explicitness**: Custom mappers explicitly define mappings, reducing hidden magic and unexpected behavior.
+- **Improved Debugging**: Easier to debug and step through the code due to its straightforward nature.
+- **Performance**: Custom mappers can offer optimized performance since they do exactly what is necessary without overhead.
+
+### Presentation Layer DTOs
+Having separate DTOs for the presentation layer (Contracts) instead of directly using application-layer DTOs is beneficial because:
+- **Encapsulation of Concerns**: Clearly separates the presentation concerns from the business logic.
+- **Versioning Flexibility**: Facilitates API evolution by isolating changes within the presentation layer.
+- **Security and Validation**: Provides a place to manage validation and security checks specific to the API layer.
+
+### Scalability of Data Mapping
+As the project grows, maintaining all mappings within a single file (such as the `DataConverters` class) can become challenging due to increased complexity and reduced readability. A recommended approach would be to adopt a structured strategy, such as creating individual mapper classes or profiles for each domain entity or operation.
+
+#### Example Recommendation:
+```csharp
+public interface IMapper<TSource, TDestination>
+{
+    TDestination Map(TSource source);
+}
+
+public class BoardStateMapper : IMapper<BoardStateDto, CurrentBoardStateResponse>
+{
+    public CurrentBoardStateResponse Map(BoardStateDto source) =>
+        new CurrentBoardStateResponse(
+            Id: source.Id,
+            Name: source.Name,
+            InitialState: source.InitialState.ToJaggedArrayState(),
+            CurrentStep: source.CurrentStep,
+            IsCompleted: source.IsCompleted,
+            State: source.State.ToJaggedArrayState());
+}
+```
+
+---
+
 ## Enforcing CQRS with Custom Interfaces
 
 ### Why Not Just Use MediatR's `IRequest`?
@@ -52,6 +152,8 @@ internal sealed class CalculateFinalStepCommandHandler : ICommandHandler<Calcula
     }
 }
 ```
+
+---
 
 ## Domain Entities with Encapsulated Behavior
 
@@ -102,6 +204,8 @@ public BoardExecution ResolveNextExecution(int maxExecutionsAllowed)
 
 This domain-centric approach results in a more expressive and robust model, closely reflecting real-world concepts and interactions.
 
+---
+
 ## Optimizing BoardState Calculations
 
 ### Conditional Use of Sequential and Parallel Execution
@@ -137,93 +241,7 @@ These benchmarks demonstrate that:
 
 This intelligent dispatching of compute strategy avoids premature optimization while still delivering performance gains where appropriate.
 
-## Result Object Pattern
-
-### Why Use Result Objects Over Exceptions?
-
-The Result Object pattern provides a structured way to handle operation outcomes, distinguishing clearly between successful and failed operations without relying on exceptions. Unlike exceptions, Result Objects make failure scenarios explicit in the method's contract, which significantly improves readability, clarity, and predictability of the code. 
-
-### Impact on Maintainability
-- **Explicit Error Handling**: Developers are forced to handle potential errors explicitly, avoiding hidden or unhandled exceptions at runtime.
-- **Clearer Business Logic**: The Result Object communicates intent clearly, allowing developers to easily understand success and failure pathways in the code.
-- **Improved Debugging**: Errors returned through Result Objects contain structured and informative error messages, enhancing debugging and reducing maintenance overhead.
-- **Predictable Flow**: Results enable predictable application flow, as all possible outcomes (success, failure, validation errors, etc.) are explicitly stated and managed.
-
-## Custom Data Mapping
-
-### Custom Mappers vs. AutoMapper or Mapster
-Using custom mappers (like the `DataConverters` class) instead of mapping libraries such as AutoMapper or Mapster offers greater control, clarity, and debuggability:
-- **Explicitness**: Custom mappers explicitly define mappings, reducing hidden magic and unexpected behavior.
-- **Improved Debugging**: Easier to debug and step through the code due to its straightforward nature.
-- **Performance**: Custom mappers can offer optimized performance since they do exactly what is necessary without overhead.
-
-### Presentation Layer DTOs
-Having separate DTOs for the presentation layer (Contracts) instead of directly using application-layer DTOs is beneficial because:
-- **Encapsulation of Concerns**: Clearly separates the presentation concerns from the business logic.
-- **Versioning Flexibility**: Facilitates API evolution by isolating changes within the presentation layer.
-- **Security and Validation**: Provides a place to manage validation and security checks specific to the API layer.
-
-### Scalability of Data Mapping
-As the project grows, maintaining all mappings within a single file (such as the `DataConverters` class) can become challenging due to increased complexity and reduced readability. A recommended approach would be to adopt a structured strategy, such as creating individual mapper classes or profiles for each domain entity or operation.
-
-#### Example Recommendation:
-```csharp
-public interface IMapper<TSource, TDestination>
-{
-    TDestination Map(TSource source);
-}
-
-public class BoardStateMapper : IMapper<BoardStateDto, CurrentBoardStateResponse>
-{
-    public CurrentBoardStateResponse Map(BoardStateDto source) =>
-        new CurrentBoardStateResponse(
-            Id: source.Id,
-            Name: source.Name,
-            InitialState: source.InitialState.ToJaggedArrayState(),
-            CurrentStep: source.CurrentStep,
-            IsCompleted: source.IsCompleted,
-            State: source.State.ToJaggedArrayState());
-}
-```
-
-## Architecture Layers
-
-### 1. Presentation Layer (ConwayGameOfLife.Web)
-- Handles API interactions.
-- Contains Controllers, DTOs (Contracts), Middleware, and abstractions (Base Controllers).
-- Uses Swagger UI for API documentation and interaction.
-
-### 2. Application Layer (ConwayGameOfLife.Application)
-- Houses business logic, domain entities, commands, queries, exceptions, DTOs, and configurations.
-- MediatR orchestrates command and query handlers.
-- Implements the Result Object pattern for structured response handling.
-
-### 3. Data Layer (ConwayGameOfLife.Data)
-- Manages persistence using Entity Framework Core.
-- Contains DbContext, configurations for entities, migration scripts, and repository implementations.
-- Provides abstractions for repositories and DbContextFactory for controlled DB context creation.
-
-### 4. Infrastructure
-- Docker Compose is used for containerization, connecting application containers to PostgreSQL.
-- TestContainers are used for integration testing, ensuring environment parity.
-
-### 5. Testing Layers
-- Integration tests (ConwayGameOfLife.IntegrationTests) ensure system reliability.
-- Architecture tests (ConwayGameOfLife.ArchitectureTests) validate adherence to architectural rules.
-
-## Deployment Architecture
-
-### Containerized Deployment (Docker Compose)
-
-- **API Container**: ASP.NET Core Web API, accessible via port 7006.
-- **Database Container**: PostgreSQL database, accessible via port 5433.
-- Containers communicate through a dedicated network (`conwaygame.devnetwork`).
-
-## API Design & Interaction
-
-- RESTful API following CRUD operations.
-- Endpoints defined clearly for board state management (current state, next state, multiple steps, and final state).
-- JSON structured responses.
+---
 
 ## Technologies Used
 
@@ -238,4 +256,3 @@ public class BoardStateMapper : IMapper<BoardStateDto, CurrentBoardStateResponse
 ## Conclusion
 
 This implementation adheres to robust software architecture practices ensuring clarity, scalability, and maintainability. It leverages Docker to provide reproducible environments, simplifying deployment and scaling.
-
