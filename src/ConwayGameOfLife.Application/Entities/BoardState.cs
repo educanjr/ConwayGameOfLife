@@ -3,12 +3,21 @@ using System.Text;
 
 namespace ConwayGameOfLife.Application.Entities;
 
+/// <summary>
+/// Represents the current state of a Game of Life board.
+/// </summary>
 public class BoardState
 {
+    /// <summary>
+    /// The cell count threshold after which next-state computation runs in parallel.
+    /// </summary>
     protected const int ParallelThreshold = 2500;
 
     public bool[,] State { get; set; }
 
+    /// <summary>
+    /// Creates a board state from a jagged boolean array.
+    /// </summary>
     public static BoardState FromJaggedArray(bool[][] jaggedState)
     {
         int rows = jaggedState.Length;
@@ -29,6 +38,9 @@ public class BoardState
         };
     }
 
+    /// <summary>
+    /// Converts the board state to a jagged array.
+    /// </summary>
     public bool[][] ToJaggedArrayState()
     {
         int rows = State.GetLength(0);
@@ -128,6 +140,9 @@ public class BoardState
     private static bool ApplyConwayRules(bool isAlive, int liveNeighbors) =>
         isAlive ? liveNeighbors == 2 || liveNeighbors == 3 : liveNeighbors == 3;
 
+    /// <summary>
+    /// Returns a hash of the board state for comparison or cycle detection.
+    /// </summary>
     public string GetStateHash()
     {
         var rows = State.GetLength(0);

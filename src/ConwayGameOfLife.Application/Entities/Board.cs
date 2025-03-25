@@ -2,6 +2,9 @@
 
 namespace ConwayGameOfLife.Application.Entities;
 
+/// <summary>
+/// Represents a Conway Game of Life board, holding the initial state and all computed executions.
+/// </summary>
 public class Board
 {
     public Guid Id { get; set; }
@@ -10,6 +13,9 @@ public class Board
 
     public IList<BoardExecution>? Executions { get; set; }
 
+    /// <summary>
+    /// Returns the execution with the highest step.
+    /// </summary>
     public BoardExecution? GetLatestExecution()
     {
         if (Executions is null || Executions.Count == 0)
@@ -20,6 +26,9 @@ public class Board
         return Executions.OrderByDescending(e => e.Step).FirstOrDefault();
     }
 
+    /// <summary>
+    /// Returns the execution at a specific step, if it exists.
+    /// </summary>
     public BoardExecution? GetExecution(uint executionStep)
     {
         if (Executions is null || Executions.Count == 0)
@@ -30,6 +39,10 @@ public class Board
         return Executions.FirstOrDefault(e => e.Step == executionStep);
     }
 
+    /// <summary>
+    /// Computes the next board execution from the latest one or the initial state.
+    /// Throws if the board is already final or execution limit is reached.
+    /// </summary>
     public BoardExecution ResolveNextExecution(int maxExecutionsAllowed)
     {
         var latestExecution = GetLatestExecution();
@@ -59,6 +72,9 @@ public class Board
         return nextExecution;
     }
 
+    /// <summary>
+    /// Resolves all remaining steps until the board reaches a final state or hits the execution limit.
+    /// </summary>
     public BoardExecution ResolveFinalExecution(int maxExecutionsAllowed)
     {
         var execution = GetLatestExecution() ?? ResolveNextExecution(maxExecutionsAllowed);
@@ -79,6 +95,9 @@ public class Board
         return execution;
     }
 
+    /// <summary>
+    /// Resolves a specific number of next steps unless the board becomes final or the limit is reached.
+    /// </summary>
     public BoardExecution ResolveNextExecution(int executionsToResolve, int maxExecutionsAllowed)
     {
         var latestExecution = GetLatestExecution();
