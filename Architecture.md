@@ -288,17 +288,17 @@ This design choice ensures the system maintains a balance between performance an
 
 ### Usage Metrics and Thresholds
 
-Benchmarks were performed on a standard development machine (Intel i7, 8 cores, 16 GB RAM, .NET 7 Release build):
+Benchmarks were performed on a standard development machine (Intel i7, 8 cores, 32 GB RAM, .NET 7 Release build):
 
 | Board Size     | Total Cells | Execution Strategy | Average Time per Step |
 |----------------|-------------|---------------------|------------------------|
-| 10x10          | 100         | Sequential          | 0.1 ms                 |
-| 30x30          | 900         | Sequential          | 0.4 ms                 |
-| 50x50          | 2,500       | Sequential          | 1.1 ms                 |
-| 100x100        | 10,000      | Parallel            | 1.7 ms                 |
-| 200x200        | 40,000      | Parallel            | 5.3 ms                 |
-| 300x300        | 90,000      | Parallel            | 11.2 ms                |
-| 500x500        | 250,000     | Parallel            | 29.5 ms                |
+| 10x10          | 100         | Sequential          | 0.005 ms               |
+| 30x30          | 900         | Sequential          | 0.02 ms                |
+| 50x50          | 2,500       | Sequential          | 0.11 ms                |
+| 100x100        | 10,000      | Parallel            | 0.15 ms                |
+| 200x200        | 40,000      | Parallel            | 0.37 ms                |
+| 300x300        | 90,000      | Parallel            | 1.5 ms                 |
+| 500x500        | 250,000     | Parallel            | 1.8 ms                 |
 
 These benchmarks demonstrate that:
 - Below **2,500** cells, sequential execution is more efficient.
