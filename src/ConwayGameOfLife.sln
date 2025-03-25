@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.Architectu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.IntegrationTests", "ConwayGameOfLife.IntegrationTests\ConwayGameOfLife.IntegrationTests.csproj", "{3A74E21A-7E62-41DB-AACA-E7251742DAFC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConwayGameOfLife.UnitTests", "ConwayGameOfLife.UnitTests\ConwayGameOfLife.UnitTests.csproj", "{266026B9-F7E3-4159-A533-5FE4CBBDCF9D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{3A74E21A-7E62-41DB-AACA-E7251742DAFC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3A74E21A-7E62-41DB-AACA-E7251742DAFC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3A74E21A-7E62-41DB-AACA-E7251742DAFC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{266026B9-F7E3-4159-A533-5FE4CBBDCF9D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{266026B9-F7E3-4159-A533-5FE4CBBDCF9D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{266026B9-F7E3-4159-A533-5FE4CBBDCF9D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{266026B9-F7E3-4159-A533-5FE4CBBDCF9D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +60,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{0339150D-7422-424E-BD3B-B58367AFE8F9} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 		{3A74E21A-7E62-41DB-AACA-E7251742DAFC} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
+		{266026B9-F7E3-4159-A533-5FE4CBBDCF9D} = {02EA681E-C7D8-13C7-8484-4AC65E1B71E8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9ABD6704-ECAE-4C78-8044-D7C4EC4F87DE}
