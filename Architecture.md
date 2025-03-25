@@ -332,6 +332,41 @@ This value is configured under the `GameRuller` section:
 
 ---
 
+## Comment Strategy
+
+This project follows the guidance from *Clean Code* (Robert C. Martin) regarding how and when to use comments. The emphasis is on writing self-explanatory code, reducing the need for comments, and using them only when they truly add value.
+
+### Guiding Principles
+- ✅ **Comments should not make up for bad code** – refactor unclear code instead.
+- ✅ **Use comments to explain "why", not "what"** – the code should already express the "what".
+- ✅ **Avoid noise comments** – avoid stating the obvious or restating code in English.
+- ✅ **Clarify intent** – use comments to explain complex logic or business decisions.
+- ✅ **Legal, TODO, or Warning comments** – these are acceptable when tagged clearly.
+
+### Examples
+```csharp
+// ❌ Avoid:
+// increment i by 1
+for (int i = 0; i < list.Count; i++)
+{
+    var item = list[i];
+}
+
+// ✅ Prefer:
+// The loop skips the first element due to seeding behavior in Conway's rules
+for (int i = 1; i < board.Length; i++)
+{
+    var cell = board[i];
+}
+
+// ✅ Legal or warning comments
+// TODO: Consider caching state hashes to improve performance
+```
+
+By keeping comments focused and intentional, the codebase remains clean, readable, and maintainable.
+
+---
+
 ## Technologies Used
 
 - **Framework:** .NET 7
