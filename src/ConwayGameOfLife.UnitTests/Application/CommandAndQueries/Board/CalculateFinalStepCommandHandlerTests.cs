@@ -26,7 +26,7 @@ public class CalculateFinalStepCommandHandlerTests
     }
 
     [Fact]
-    public async Task Handle_ShouldReturnSuccessResult_WhenBoardIsResolvedToFinalState()
+    public async Task Handle_ShouldReturnSuccessResult_AndCallAddExecutions_WhenBoardIsResolvedToFinalState()
     {
         // Arrange
         var boardId = Guid.NewGuid();
@@ -51,7 +51,8 @@ public class CalculateFinalStepCommandHandlerTests
 
         _boardRepositoryMock
             .Setup(r => r.AddExecutionsRange(It.IsAny<IList<BoardExecution>>()))
-            .Returns(Task.CompletedTask);
+            .Returns(Task.CompletedTask)
+            .Verifiable();
 
         var command = new CalculateFinalStepCommand(boardId);
 
@@ -65,6 +66,9 @@ public class CalculateFinalStepCommandHandlerTests
         result.Value.InitialState.GetStateHash().Should().Be(initialState.GetStateHash());
         result.Value.CalculatedSteps.Should().BeGreaterThan(0);
         result.Value.CurrentStep.Should().BeLessThanOrEqualTo(_config.MaxExecutionsAllowed);
+
+        _boardRepositoryMock
+            .Verify(r => r.AddExecutionsRange(It.IsAny<IList<BoardExecution>>()), Times.Once);
     }
 
     [Fact]
