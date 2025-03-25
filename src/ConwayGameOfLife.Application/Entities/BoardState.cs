@@ -5,6 +5,8 @@ namespace ConwayGameOfLife.Application.Entities;
 
 public class BoardState
 {
+    protected const int ParallelThreshold = 2500;
+
     public bool[,] State { get; set; }
 
     public static BoardState FromJaggedArray(bool[][] jaggedState)
@@ -52,10 +54,9 @@ public class BoardState
         int cols = State.GetLength(1);
 
         int totalCells = rows * cols;
-        int parallelThreshold = 2500;
 
         //Since each cell's next state is independent of others, we can use Parallel.For to calculate the next state
-        var nextState = totalCells < parallelThreshold ? 
+        var nextState = totalCells < ParallelThreshold ? 
             ComputeNextStateSequential(State) : //Use sequential loop on small boards (Avoids parallel overhead)
             ComputeNextStateParallel(State);
 
