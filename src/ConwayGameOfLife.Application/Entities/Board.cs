@@ -80,6 +80,13 @@ public class Board
         var indx = execution.Step;
         var executionsCounter = latestExecution is null ? 1 : 0;
 
+        //Prevent calculate executions if the limit will be reached. Throw early.
+        var targetExecution = indx + executionsToResolve - executionsCounter;
+        if (targetExecution > maxExecutionsAllowed)
+        {
+            throw new ExecutionLimitReachedException();
+        }
+
         while (indx < maxExecutionsAllowed && executionsCounter < executionsToResolve && !execution.IsFinal)
         {
             executionsCounter++;
