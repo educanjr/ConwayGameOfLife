@@ -205,6 +205,115 @@ public class BoardTests
         result.IsFinal.Should().BeFalse();
     }
 
+
+    [Fact]
+    public void Should_ComputeNExecutions_WhenNoExecutionsExist()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var result = board.ResolveNextExecution(executionsToResolve: 3, maxExecutionsAllowed: 10);
+
+        // Assert
+        result.Step.Should().BeGreaterThan(0);
+        board.Executions.Should().HaveCountLessThanOrEqualTo(3);
+    }
+
+    [Fact]
+    public void Should_ContinueFromLatestExecution()
+    {
+        // Arrange
+        var state = CreateBlinker();
+        var board = new Board
+        {
+            InitialState = state,
+            Executions = new List<BoardExecution>
+            {
+                new() { Step = 2, State = state.ComputeNextState(), IsFinal = false }
+            }
+        };
+
+        // Act
+        var result = board.ResolveNextExecution(2, 10);
+
+        // Assert
+        result.Step.Should().BeGreaterThan(2);
+        board.Executions.Should().HaveCountGreaterThan(1);
+    }
+
+    [Fact]
+    public void Should_StopEarly_IfFinalStateIsReached()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var result = board.ResolveNextExecution(10, 10); // try to compute more than needed
+
+        // Assert
+        result.IsFinal.Should().BeTrue();
+        board.Executions!.Count.Should().BeLessThanOrEqualTo(10);
+    }
+
+    [Fact]
+    public void Should_Throw_IfTargetStepExceedsLimit()
+    {
+        // Arrange
+        var board = new Board
+        {
+            Executions = new List<BoardExecution>
+            {
+                new() { Step = 9, IsFinal = false, State = CreateBlinker() }
+            }
+        };
+
+        // Act
+        Action act = () => board.ResolveNextExecution(executionsToResolve: 3, maxExecutionsAllowed: 10);
+
+        // Assert
+        act.Should().Throw<ExecutionLimitReachedException>();
+    }
+
+    [Fact]
+    public void Should_NotAddMoreThanNExecutions()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var result = board.ResolveNextExecution(executionsToResolve: 2, maxExecutionsAllowed: 10);
+
+        // Assert
+        board.Executions!.Count.Should().BeLessThanOrEqualTo(2);
+    }
+
+    [Fact]
+    public void Should_ComputeInitialPlusN_WhenNoExecutionsExist()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var result = board.ResolveNextExecution(3, 10);
+
+        // Assert
+        result.Step.Should().BeGreaterThanOrEqualTo(2); //Blinker repeats every 2 states
+        board.Executions!.Count.Should().BeLessThanOrEqualTo(2);
+    }
+
     private static BoardState CreateBlinker()
     {
         return BoardState.FromJaggedArray(new[]

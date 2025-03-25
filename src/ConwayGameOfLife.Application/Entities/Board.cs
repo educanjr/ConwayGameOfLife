@@ -87,7 +87,7 @@ public class Board
             throw new ExecutionLimitReachedException();
         }
 
-        while (indx < maxExecutionsAllowed && executionsCounter < executionsToResolve && !execution.IsFinal)
+        while (indx < maxExecutionsAllowed && executionsCounter <= executionsToResolve && !execution.IsFinal)
         {
             executionsCounter++;
             indx++;
