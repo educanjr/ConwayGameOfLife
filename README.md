@@ -233,16 +233,23 @@ public class CalculateNextStepCommandHandler : ICommandHandler<CalculateNextStep
 ---
 
 ## ✅ Running Tests
-### **1️⃣ Integration Tests (TestContainers)**
-Run integration tests using **xUnit & TestContainers**:
-```sh
-dotnet test ConwayGameOfLife.IntegrationTests
-```
-
-### **2️⃣ Architecture Tests**
+### **1️⃣ Architecture Tests**
 Ensure **Clean Architecture principles** are followed:
 ```sh
 dotnet test ConwayGameOfLife.ArchitectureTests
+```
+
+### **2️⃣ Unit Tests**
+Validate business logic and proper dependency calls for isoalated methods:
+```sh
+dotnet test ConwayGameOfLife.UnitTests
+```
+
+### **3️⃣ Integration Tests (TestContainers)**
+Run integration tests using **xUnit & TestContainers**.
+Validate ednpoint response and end-to-end application flow:
+```sh
+dotnet test ConwayGameOfLife.IntegrationTests
 ```
 
 ---
