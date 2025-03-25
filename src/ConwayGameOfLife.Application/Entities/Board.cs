@@ -64,7 +64,13 @@ public class Board
         var execution = GetLatestExecution() ?? ResolveNextExecution(maxExecutionsAllowed);
         var indx = execution.Step;
 
-        while (indx <= maxExecutionsAllowed && !execution.IsFinal)
+        //Prevent calculate executions if the limit is reached. Throw early.
+        if (indx >= maxExecutionsAllowed)
+        {
+            throw new ExecutionLimitReachedException();
+        }
+
+        while (indx < maxExecutionsAllowed && !execution.IsFinal)
         {
             indx++;
             execution = ResolveNextExecution(maxExecutionsAllowed);

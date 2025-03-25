@@ -314,6 +314,101 @@ public class BoardTests
         board.Executions!.Count.Should().BeLessThanOrEqualTo(2);
     }
 
+    [Fact]
+    public void Should_ComputeFromInitialState_WhenNoExecutionsExist()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var finalExecution = board.ResolveFinalExecution(10);
+
+        // Assert
+        finalExecution.Step.Should().Be(2); // Blinker repeats at step 2
+        finalExecution.IsFinal.Should().BeTrue();
+        board.Executions!.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public void Should_NotCompute_WhenLatestExecutionIsAlreadyFinal()
+    {
+        // Arrange
+        var board = new Board
+        {
+            Executions = new List<BoardExecution>
+            {
+                new()
+                {
+                    Step = 3,
+                    IsFinal = true,
+                    State = CreateBlinker()
+                }
+            }
+        };
+
+        // Act
+        var finalExecution = board.ResolveFinalExecution(10);
+
+        // Assert
+        finalExecution.Step.Should().Be(3);
+        finalExecution.IsFinal.Should().BeTrue();
+        board.Executions!.Count.Should().Be(1);
+    }
+
+    [Fact]
+    public void Should_ThrowExecutionLimitReachedException_WhenMaxExecutionsReached()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        Action act = () => board.ResolveFinalExecution(maxExecutionsAllowed: 1);
+
+        // Assert
+        act.Should().Throw<ExecutionLimitReachedException>();
+    }
+
+    [Fact]
+    public void Should_ReachFinalState_WhenCycleDetected()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var finalExecution = board.ResolveFinalExecution(10);
+
+        // Assert
+        finalExecution.Step.Should().Be(2); // Cycle detected
+        finalExecution.IsFinal.Should().BeTrue();
+        board.Executions!.Count.Should().Be(2);
+    }
+
+    [Fact]
+    public void Should_CalculateUntilFinalOrMaxReached()
+    {
+        // Arrange
+        var board = new Board
+        {
+            InitialState = CreateBlinker()
+        };
+
+        // Act
+        var finalExecution = board.ResolveFinalExecution(5);
+
+        // Assert
+        finalExecution.Step.Should().BeLessThanOrEqualTo(5);
+        finalExecution.IsFinal.Should().BeTrue();
+    }
+
     private static BoardState CreateBlinker()
     {
         return BoardState.FromJaggedArray(new[]
