@@ -64,7 +64,7 @@ public class Board
         var execution = GetLatestExecution() ?? ResolveNextExecution(maxExecutionsAllowed);
         var indx = execution.Step;
 
-        while (indx < maxExecutionsAllowed && !execution.IsFinal)
+        while (indx <= maxExecutionsAllowed && !execution.IsFinal)
         {
             indx++;
             execution = ResolveNextExecution(maxExecutionsAllowed);
